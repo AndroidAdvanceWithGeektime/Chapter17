@@ -33,9 +33,7 @@ public class MainActivity extends Activity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        Log.e("HOOOOOOOOK", "thread name:" + Thread.currentThread().getName());
-                        Log.e("HOOOOOOOOK", "thread id:" + Thread.currentThread().getId());
-                        Log.e("HOOOOOOOOK", "respond:" + getURLResponse("https://www.qq.com"));
+                        Log.e("HOOOOOOOOK", "respond:" + getURLResponse("https://www.baidu.com"));
 
                     }
                 }).start();

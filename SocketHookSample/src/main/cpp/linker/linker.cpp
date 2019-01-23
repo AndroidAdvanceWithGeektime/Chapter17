@@ -228,6 +228,24 @@ int hook_plt_method(const char* libname, const char* name, hook_func hook) {
   return 1;
 }
 
+
+int hook_plt_method_all_lib(const char* exclueLibname, const char* name, hook_func hook) {
+  if (refresh_shared_libs()) {
+    // Could not properly refresh the cache of shared library data
+    return -1;
+  }
+
+  int failures = 0;
+
+  for (auto const& lib : allSharedLibs()) {
+      if (strcmp(lib.first.c_str(), exclueLibname) != 0) {
+        failures += hook_plt_method(lib.first.c_str(), name, hook);
+      }
+  }
+
+  return failures;
+}
+
 int unhook_plt_method(const char* libname, const char* name, hook_func hook) {
   plt_hook_spec spec(name, hook);
   if (unhook_single_lib(libname, &spec, 1) == 0 && spec.hook_result == 1) {

@@ -78,6 +78,11 @@ get_relocations(symbol sym, reloc* relocs_out, size_t relocs_out_len);
 int
 hook_plt_method(const char* libname, const char* name, hook_func hook);
 
+
+int
+hook_plt_method_all_lib(const char* exclueLibname, const char* name, hook_func hook);
+
+
 typedef struct _plt_hook_spec {
   const char* fn_name;
   hook_func hook_fn;
