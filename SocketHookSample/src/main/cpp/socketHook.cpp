@@ -81,47 +81,43 @@ int socket_connect_hook(int sockfd, const struct sockaddr* serv_addr, socklen_t 
         }
         port = ntohs(sa6->sin6_port);
         ALOG("AF_INET6 ipv6 IP===>%s:%d", ip, port);
+    } else if (serv_addr->sa_family == AF_LOCAL) {
+        ALOG("Ignore local socket connect");
+
     }
 
     return CALL_PREV(socket_connect_hook, sockfd, serv_addr, addrlen);
 }
 
 ssize_t socket_send_hook(int sockfd, const void *buf, size_t len, int flags) {
-    ALOG("socket_send_hook!!!!");
-
     return CALL_PREV(socket_send_hook, sockfd, buf, len, flags);
 }
 
 ssize_t socket_recv_hook(int sockfd, void *buf, size_t len, int flags) {
-    ALOG("socket_recv_hook!!!!!");
-
     return CALL_PREV(socket_recv_hook, sockfd, buf, len, flags);
 }
 
 ssize_t socket_sendto_hook(int sockfd, const void *buf, size_t len, int flags,
                            const struct sockaddr *dest_addr, socklen_t addrlen) {
-    ALOG("socket_sendto_hook!!!!!");
-
     return CALL_PREV(socket_sendto_hook, sockfd, buf, len, flags, dest_addr, addrlen);
 }
 
 ssize_t socket_recvfrom_hook(int sockfd, void *buf, size_t len, int flags,
                              struct sockaddr *src_addr, socklen_t *addrlen) {
-    ALOG("socket_recvfrom_hook!!!!!");
-
     return CALL_PREV(socket_recvfrom_hook, sockfd, buf, len, flags, src_addr, addrlen);
 }
 
 /**
+* 直接 hook 内存中的所有so，但是需要排除掉socket相关方法本身定义的libc(不然会出现循坏)
 * plt hook
 */
 void hookLoadedLibs() {
     ALOG("hook_plt_method");
-    hook_plt_method("libopenjdk.so", "send", (hook_func) &socket_send_hook);
-    hook_plt_method("libopenjdk.so", "recv", (hook_func) &socket_recv_hook);
-    hook_plt_method("libopenjdk.so", "sendto", (hook_func) &socket_sendto_hook);
-    hook_plt_method("libopenjdk.so", "recvfrom", (hook_func) &socket_recvfrom_hook);
-    hook_plt_method("libopenjdk.so", "connect", (hook_func) &socket_connect_hook);
+    hook_plt_method_all_lib("libc.so", "send", (hook_func) &socket_send_hook);
+    hook_plt_method_all_lib("libc.so", "recv", (hook_func) &socket_recv_hook);
+    hook_plt_method_all_lib("libc.so", "sendto", (hook_func) &socket_sendto_hook);
+    hook_plt_method_all_lib("libc.so", "recvfrom", (hook_func) &socket_recvfrom_hook);
+    hook_plt_method_all_lib("libc.so", "connect", (hook_func) &socket_connect_hook);
 }
 
 
